@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Furigana</title>
+  <meta name="description" content="サイトキャプションを入力">
+  <meta name="keywords" content="サイトキーワードを,で区切って入力">
+  <link rel="stylesheet" href="">
+  <style>
+    #wordResult,
+    #sentenceValue,
+    #sentenceResult {
+      display: block;
+      width: 80%;
+    }
+
+    .emphasis-2 {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    #displayExample {
+      border: solid 1px #cccccc;
+      border-radius: 5px;
+      width: 80%;
+      min-height: 40px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- [main] -->
+  <article>
+    <h1>Furigana Change</h1>
+    <section id="word">
+      <h2>単語</h2>
+      <div class="">
+        <div><span class="emphasis-2">山海(さんかい)</span>といった形式でに変換したい文字列を入力してください。</div>
+        <input type="text" name="word" id="wordValue">
+        <button>変換する</button>
+        <input type="text" name="word" id="wordResult">
+        <button class="copy">コピーする</button>
+        <button class="reset">リセット</button>
+        <p id="copyResultTxt" style="display: none;"></p>
+        <div>表示例</div>
+        <div id="displayExample" class=""></div>
+
+      </div>
+    </section>
+
+    <section id="sentence">
+      <h2>文章</h2>
+      <div class="">
+        <textarea name="sentence" id="sentenceValue" cols="30" rows="10"></textarea>
+        <button>変換する</button>
+        <textarea name="sentence" id="sentenceResult" cols="30" rows="10"></textarea>
+      </div>
+    </section>
+
+  </article>
+  <!-- [/main] -->
+
+  <!-- 1行目を記述する事で、IE8以下でもHTML5のページを表示することが可能になります。 -->
+  <!-- 2行目は、IE8以下でCSSのメディアクエリを対応させるコードです。 -->
+  <!--[if lt IE 9]>   
+<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+<script src="http://css3-mediaqueries-js.googlecode.com/svn/trunk/css3-mediaqueries.js"></script>
+<![endif]-->
+  <script>
+    //scriptをここに
+    'use strict';
+    let hanS;
+
+    // 貴仁(たかひと) → <ruby><rb>貴仁</rb><rp>(</rp><rt>たかひと</rt><rp>)</rp></ruby>
+    function wordConversion(word) {
+      let splitWord, kanji, furigana, rubyWord;
+      splitWord = word.split('(');
+      kanji = splitWord[0];
+      furigana = splitWord[1].replace(/\(/g, '')
+        .replace(/\)/g, '');
+      rubyWord = '<ruby><rb>' + kanji + '</rb><rp>(</rp><rt>' + furigana + '</rt><rp>)</rp></ruby>';
+      return rubyWord;
+    }
+
+    const wordValue = document.querySelector('#wordValue');
+    const wordButton = document.querySelector('#word button');
+    const wordResult = document.querySelector('#wordResult');
+    const displayExample = document.querySelector('#displayExample');
+
+    wordButton.addEventListener('click', function () {
+      let temp, formatCheck, result;
+
+      temp = wordValue.value;
+      console.log('before: ' + temp);
+      const regexString = /^\p{sc=Han}+\(\p{sc=Hiragana}+\)$/u;
+      formatCheck = regexString.test(temp);
+
+      if (temp && formatCheck) {
+        result = wordConversion(temp);
+        wordResult.value = result;
+        displayExample.insertAdjacentHTML('afterbegin', result);
+      } else {
+        alert('正しい形式で入力してください');
+        return false;
+      }
+    });
+
+    const sentenceValue = document.querySelector('#sentenceValue');
+    const sentenceButton = document.querySelector('#sentence button');
+    const sentenceResult = document.querySelector('#sentenceResult');
+
+    hanS = /\p{sc=Han}/u;         // スクリプト分類：汉字（漢字）
+    console.log(hanS.test('貴仁'));   // true
+    let test = /^[ぁ-ん]+$/;
+    console.log(test.test('てすと'));
+    let rubyCheck = /^\p{sc=Han}+\(\p{sc=Hiragana}+\)$/u;
+    console.log(rubyCheck.test('山海(なる)'));
+
+
+    function sentenceConversion(sentence) {
+
+    }
+
+    // ボタンクリックでコピペ
+    function execCopy(string) {
+      const tmp = document.createElement("div");
+      const pre = document.createElement('pre');
+      let s, result;
+
+      // 親要素のCSSで user-select: none だとコピーできないので書き換える
+      pre.style.webkitUserSelect = 'auto';
+      pre.style.userSelect = 'auto';
+
+      tmp.appendChild(pre).textContent = string;
+
+      // 要素を画面外へ
+      s = tmp.style;
+      s.position = 'fixed';
+      s.right = '200%';
+
+      // body に追加
+      document.body.appendChild(tmp);
+      // 要素を選択
+      document.getSelection().selectAllChildren(tmp);
+
+      // クリップボードにコピー
+      result = document.execCommand("copy");
+
+      // 要素削除
+      document.body.removeChild(tmp);
+
+      return result;
+    }
+
+    let timerId;
+    const copyResultTxt = document.querySelector('#copyResultTxt');
+
+    // ボックスを表示して、タイマーを開始
+    function showBox() {
+      copyResultTxt.style.display = "block"; // ボックスを表示
+      timerId = setTimeout(closeBox, 500); // タイマーを開始
+    }
+    // ボックスを消して、タイマーを終了
+    function closeBox() {
+      copyResultTxt.style.display = "none"; // ボックスを消す
+      clearTimeout(timerId); // タイマーを終了
+    }
+
+    const copyButton = document.querySelector('#word .copy');
+
+    copyButton.onclick = function () {
+      if (execCopy(wordResult.value)) {
+        // alert('コピーできました');
+        copyResultTxt.innerText = "コピーできました";
+        showBox();
+      }
+      else {
+        copyResultTxt.innerText = "このブラウザでは対応していません";
+        showBox();
+      }
+    };
+
+    // リセット処理
+    function resetValu(id1, id2) {
+      id1.value = '';
+      id2.value = '';
+      return false;
+    }
+
+    const resetButton = document.querySelector('#word .reset');
+    resetButton.addEventListener('click', function () {
+      resetValu(wordValue, wordResult);
+    });
+
+
+  </script>
+</body>
+</html>
