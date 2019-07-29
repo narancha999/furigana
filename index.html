@@ -20,7 +20,8 @@
       font-weight: 600;
     }
 
-    #displayExample {
+    #displayExample,
+    #displayExampleSentence {
       border: solid 1px #cccccc;
       border-radius: 5px;
       width: 80%;
@@ -55,6 +56,8 @@
         <textarea name="sentence" id="sentenceValue" cols="30" rows="10"></textarea>
         <button>変換する</button>
         <textarea name="sentence" id="sentenceResult" cols="30" rows="10"></textarea>
+        <div>表示例</div>
+        <div id="displayExampleSentence" class=""></div>
       </div>
     </section>
 
@@ -72,6 +75,7 @@
     'use strict';
     let hanS;
 
+    ////__ 単語変換
     // 貴仁(たかひと) → <ruby><rb>貴仁</rb><rp>(</rp><rt>たかひと</rt><rp>)</rp></ruby>
     function wordConversion(word) {
       let splitWord, kanji, furigana, rubyWord;
@@ -106,21 +110,61 @@
       }
     });
 
-    const sentenceValue = document.querySelector('#sentenceValue');
-    const sentenceButton = document.querySelector('#sentence button');
-    const sentenceResult = document.querySelector('#sentenceResult');
-
-    hanS = /\p{sc=Han}/u;         // スクリプト分類：汉字（漢字）
-    console.log(hanS.test('貴仁'));   // true
-    let test = /^[ぁ-ん]+$/;
-    console.log(test.test('てすと'));
-    let rubyCheck = /^\p{sc=Han}+\(\p{sc=Hiragana}+\)$/u;
-    console.log(rubyCheck.test('山海(なる)'));
-
-
+    ////__ 文章変換
     function sentenceConversion(sentence) {
 
     }
+
+    const sentenceValue = document.querySelector('#sentenceValue');
+    const sentenceButton = document.querySelector('#sentence button');
+    const sentenceResult = document.querySelector('#sentenceResult');
+    const displayExampleSentence = document.querySelector('#displayExampleSentence');
+
+    sentenceButton.addEventListener('click', function () {
+
+      let tempValu = sentenceValue.value;
+      let tempValuCopy = tempValu;
+      // console.log('tempValu: ' + tempValu);
+      let wordArray = [];
+
+      const regexString = /\p{sc=Han}{1,}\([\p{sc=Hiragana}]*\)/gu;
+      let temp;
+      let i = 0;
+      while ((temp = regexString.exec(tempValu)) != null) {
+        let splitWord, kanji, furigana, rubyWord;
+
+        wordArray.push(temp[0]);
+        splitWord = temp[0].split('(');
+        kanji = splitWord[0];
+        furigana = splitWord[1].replace(/\(/g, '').replace(/\)/g, '');
+        rubyWord = '<ruby><rb>' + kanji + '</rb><rp>(</rp><rt>' + furigana + '</rt><rp>)</rp></ruby>';
+        tempValuCopy = tempValuCopy.replace(wordArray[i], rubyWord);
+        i++;
+      }
+
+      // console.log('wordArray: ' + wordArray);
+      // console.log('tempValuCopy: ' + tempValuCopy);
+
+      sentenceResult.value = tempValuCopy;
+      displayExampleSentence.insertAdjacentHTML('afterbegin', tempValuCopy);
+
+
+      // let temp, formatCheck, result;
+
+      // temp = wordValue.value;
+      // console.log('before: ' + temp);
+      // const regexString = /^\p{sc=Han}+\(\p{sc=Hiragana}+\)$/u;
+      // formatCheck = regexString.test(temp);
+
+      // if (temp && formatCheck) {
+      //   result = wordConversion(temp);
+      //   wordResult.value = result;
+      //   displayExample.insertAdjacentHTML('afterbegin', result);
+      // } else {
+      //   alert('正しい形式で入力してください');
+      //   return false;
+      // }
+    });
 
     // ボタンクリックでコピペ
     function execCopy(string) {
