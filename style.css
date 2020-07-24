@@ -1,0 +1,33 @@
+    .wrapper {
+      margin: 0 auto;
+      max-width: 700px;
+    }
+
+    #sentenceValue,
+    #sentenceResult {
+      display: block;
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    .emphasis-2 {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    #displayExample,
+    #displayExampleSentence {
+      box-sizing: border-box;
+      border: solid 1px #cccccc;
+      border-radius: 5px;
+      width: 100%;
+      min-height: 40px;
+    }
+
+    .mb {
+      margin-bottom: 30px;
+    }
+
+    .p-small {
+      padding: 5px;
+    }
